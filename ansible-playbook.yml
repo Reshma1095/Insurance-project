@@ -1,27 +1,20 @@
-- name: Configure Docker on EC2 Instances
-  hosts: ec2_instances   # Ensure this matches the group in your inventory file
+- name : Configure Docker on EC2 Instances
+  hosts : all
   become: true
-  become_user: root
-  connection: ssh
-  tasks:
-    - name: Update apt repository
-      apt:
-        update_cache: yes
-      tags: apt_update
+  connection : ssh
+  tasks : 
+  - name: updating apt
+    command : sudo apt-get update
 
-    - name: Install Docker
-      apt:
-        name: docker.io
-        state: present
-      tags: install_docker
+  - name : Install Docker
+    command : sudo apt-get install -y docker.io
+    become : yes
+    become_user : root
 
-    - name: Start Docker Service
-      systemd:
-        name: docker
-        state: started
-        enabled: yes
-      tags: start_docker
+  - name : Start Docker Service
+    command : sudo systemctl start docker
+    become : yes
+    become_user : root
 
-    - name: Deploy Docker Container
-      command: docker run -itd -p 8085:8080 reshmadocker1095/insure-me:3.0
-      tags: deploy_container
+  - name: Deploy Docker Container
+    command: docker run -itd -p 8085:80 reshmadocker1095/insure-me:3.0
