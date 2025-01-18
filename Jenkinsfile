@@ -47,11 +47,12 @@ node{
     echo 'Pushing the docker image to DockerHub'
     withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'dockerHubPassword')]) {
         // Use --password-stdin for secure login
-        sh """
-            echo \$dockerHubPassword | ${dockerCMD} login -u insuranceproject1 --password-stdin
-        """
+        sh '''
+            echo $dockerHubPassword | ${dockerCMD} login -u insuranceproject1 --password-stdin
+        '''
         // Push the image to DockerHub
-        sh "${dockerCMD} push insuranceproject1/insure-me:${tagName}"
+        sh '''
+            ${dockerCMD} push insuranceproject1/insure-me:${tagName}
             
         }
         
