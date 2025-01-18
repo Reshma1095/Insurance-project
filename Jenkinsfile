@@ -1,4 +1,4 @@
-pipeline{
+node{
     
     def mavenHome
     def mavenCMD
