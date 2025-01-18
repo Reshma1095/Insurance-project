@@ -40,14 +40,14 @@ node{
     
     stage('Containerize the application'){
         echo 'Creating Docker image'
-        sh "${dockerCMD} build -t vikuldocker/insure-me:${tagName} ."
+        sh "${dockerCMD} build -t reshmadocker1095/insure-me:${tagName} ."
     }
     
     stage('Pushing it ot the DockerHub'){
         echo 'Pushing the docker image to DockerHub'
         withCredentials([string(credentialsId: 'dockerhubpass', variable: 'dockerhubpass')]) {
-        sh "${dockerCMD} login -u vikuldocker -p ${dockerhubpass}"
-        sh "${dockerCMD} push vikuldocker/insure-me:${tagName}"
+        sh "${dockerCMD} login -u reshmadocker1095 -p ${dockerhubpass}"
+        sh "${dockerCMD} push reshmadocker1095/insure-me:${tagName}"
 }
         
     stage('Configure and Deploy to the test-server'){
