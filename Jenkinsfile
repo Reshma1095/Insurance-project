@@ -40,18 +40,15 @@ node{
     
     stage('Containerize the application'){
         echo 'Creating Docker image'
-        sh "${dockerCMD} build -t insuranceproject1/insure-me:${tagName} ."
+        sh "${dockerCMD} build -t shubhamkushwah123/insure-me:${tagName} ."
     }
     
-    stage('Pushing it to DockerHub') {
-    echo 'Pushing the docker image to DockerHub'
-    withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'dockerHubPassword')]) {
-        // Use --password-stdin for secure login
-        sh """
-            echo \$dockerHubPassword | ${dockerCMD} login -u insuranceproject1 --password-stdin
-        """
-        // Push the image to DockerHub
-        sh "${dockerCMD} push insuranceproject1/insure-me:${tagName}"
+    stage('Pushing it ot the DockerHub'){
+        echo 'Pushing the docker image to DockerHub'
+        withCredentials([string(credentialsId: 'dock-password', variable: 'dockerHubPassword')]) {
+        sh "${dockerCMD} login -u shubhamkushwah123 -p ${dockerHubPassword}"
+        sh "${dockerCMD} push shubhamkushwah123/insure-me:${tagName}"
+            
         }
         
     stage('Configure and Deploy to the test-server'){
