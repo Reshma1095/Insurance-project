@@ -46,8 +46,8 @@ node{
     stage('Pushing it ot the DockerHub'){
         echo 'Pushing the docker image to DockerHub'
         withCredentials([string(credentialsId: 'dockerhubpass', variable: 'dockerhubpass')]) {
-        sh "${dockerCMD} login -u vikuldocker -p ${dockerhubpass}"
-        sh "${dockerCMD} push vikuldocker/insure-me:${tagName}"
+        //sh "${dockerCMD} login -u vikuldocker -p ${dockerhubpass}"
+        //sh "${dockerCMD} push vikuldocker/insure-me:${tagName}"
 }
         
     stage('Configure and Deploy to the test-server'){
