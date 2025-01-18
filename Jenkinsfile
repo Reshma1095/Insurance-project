@@ -1,54 +1,18 @@
 node{
     
-    // Define variables for Maven, Docker, and tag name
     def mavenHome
     def mavenCMD
     def docker
     def dockerCMD
     def tagName
-
-    try {
-        stage('Prepare Environment') {
-            echo 'Initializing all the variables'
-            
-            // Initialize Maven and Docker tools from Jenkins
-            mavenHome = tool name: 'maven', type: 'maven'
-            mavenCMD = "${mavenHome}/bin/mvn"
-            
-            docker = tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
-            dockerCMD = "${docker}/bin/docker"
-            
-            // Define the tag name, could be used for Docker image tagging or versioning
-            tagName = "3.0"
-            
-            echo "Maven CMD: ${mavenCMD}"
-            echo "Docker CMD: ${dockerCMD}"
-            echo "Tag name: ${tagName}"
-        }
-
-        // Add more stages as needed for your build, test, deploy process
-        stage('Build and Test') {
-            echo 'Running build and test steps'
-
-            // Example: Running Maven build
-            sh "${mavenCMD} clean install"
-
-            // Example: Running Docker commands
-            sh "${dockerCMD} build -t my-image:${tagName} ."
-        }
-
-        stage('Deploy') {
-            echo 'Deploying application'
-
-            // Example: Docker push (pushes to a registry like Docker Hub)
-            sh "${dockerCMD} push my-image:${tagName}"
-        }
-
-    } catch (Exception e) {
-        currentBuild.result = 'FAILURE'
-        throw e
-    } finally {
-        // Clean up or post-actions (e.g., notifying about the build status)
+    
+    stage('prepare enviroment'){
+        echo 'initialize all the variables'
+        mavenHome = tool name: 'maven' , type: 'maven'
+        mavenCMD = "${mavenHome}/bin/mvn"
+        docker = tool name: 'docker' , type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
+        dockerCMD = "${docker}/bin/docker"
+        tagName="3.0"
     }
     
     stage('git code checkout'){
