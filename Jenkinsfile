@@ -1,64 +1,61 @@
-node{
+node {
     def mavenHome
     def mavenCMD
     def docker
     def dockerCMD
     def tagName
     
-    stage('prepare enviroment'){
-        echo 'initialize all the variables'
-        mavenHome = tool name: 'maven' , type: 'maven'
+    stage('Prepare Environment') {
+        echo 'Initialize all the variables'
+        mavenHome = tool name: 'maven', type: 'maven'
         mavenCMD = "${mavenHome}/bin/mvn"
-        docker = tool name: 'docker' , type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
+        docker = tool name: 'docker', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
         dockerCMD = "${docker}/bin/docker"
-        tagName="3.0"
+        tagName = "3.0"
     }
     
-    stage('git code checkout'){
-        try{
-            echo 'checkout the code from git repository'
+    stage('Git Code Checkout') {
+        try {
+            echo 'Checkout the code from git repository'
             git 'https://github.com/Reshma1095/Insurance-project.git'
-        }
-        catch(Exception e){
-            echo 'Exception occured in Git Code Checkout Stage'
+        } catch (Exception e) {
+            echo 'Exception occurred in Git Code Checkout Stage'
             currentBuild.result = "FAILURE"
             emailext body: '''Dear All,
-            The Jenkins job ${JOB_NAME} has been failed. Request you to please have a look at it immediately by clicking on the below link. 
-            ${BUILD_URL}''', subject: 'Job ${JOB_NAME} ${BUILD_NUMBER} is failed', to: 'reshmajk1095@gmail.com'
+            The Jenkins job ${JOB_NAME} has failed. Please have a look at it immediately by clicking on the link below.
+            ${BUILD_URL}''', subject: 'Job ${JOB_NAME} ${BUILD_NUMBER} Failed', to: 'reshmajk1095@gmail.com'
+            error "Stopping build due to Git checkout failure."
         }
     }
     
-    stage('Build the Application'){
-        echo "Cleaning... Compiling...Testing... Packaging..."
-        //sh 'mvn clean package'
+    stage('Build the Application') {
+        echo "Cleaning, Compiling, Testing, and Packaging..."
         sh "${mavenCMD} clean package"        
     }
     
-    stage('publish test reports'){
-        publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/workspace/Capstone-Project-Live-Demo/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+    stage('Publish Test Reports') {
+        echo 'Publishing test reports'
+        publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, 
+                     reportDir: 'target/surefire-reports', reportFiles: 'index.html', 
+                     reportName: 'HTML Report', useWrapperFileDirectly: true])
     }
     
-    stage('Containerize the application'){
+    stage('Containerize the Application') {
         echo 'Creating Docker image'
         sh "${dockerCMD} build -t insuranceproject1/insure-me:${tagName} ."
     }
     
-    stage('Pushing it ot the DockerHub'){
-        echo 'Pushing the docker image to DockerHub'
+    stage('Push to DockerHub') {
+        echo 'Pushing the Docker image to DockerHub'
         withCredentials([string(credentialsId: 'dock-password', variable: 'dockerHubPassword')]) {
-        sh "${dockerCMD} login -u insuranceproject1 -p ${dockerHubPassword}"
-        sh "${dockerCMD} push insuranceproject1/insure-me:${tagName}"
-            
+            sh "${dockerCMD} login -u insuranceproject1 -p ${dockerHubPassword}"
+            sh "${dockerCMD} push insuranceproject1/insure-me:${tagName}"
         }
-        
-    stage('Configure and Deploy to the test-server'){
-        ansiblePlaybook become: true, credentialsId: 'ansible-key', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible-playbook.yml'
     }
-        
-        
+
+    stage('Configure and Deploy to Test-Server') {
+        echo 'Deploying application to test server'
+        ansiblePlaybook become: true, credentialsId: 'ansible-key', disableHostKeyChecking: true, 
+                       installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible-playbook.yml'
     }
 }
-
-
-
-
