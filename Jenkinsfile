@@ -43,12 +43,25 @@ node{
         sh "${dockerCMD} build -t insuranceproject1/insure-me:${tagName} ."
     }
     
-    stage('Pushing it ot the DockerHub'){
-        echo 'Pushing the docker image to DockerHub'
-        withCredentials([string(credentialsId: 'dock-password', variable: 'dockerHubPassword')]) {
-        sh "${dockerCMD} login -u insuranceproject1 -p ${dockerHubPassword}"
-        sh "${dockerCMD} push insuranceproject1/insure-me:${tagName}"
-        }
+    stage('Pushing it to DockerHub') {
+    echo 'Pushing the docker image to DockerHub'
+    withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'dockerHubPassword')]) {
+        echo "Using Docker credentials for login"
+        // Add debugging information
+        echo "dockerCMD: ${dockerCMD}"
+        echo "dockerHubPassword: ${dockerHubPassword}"
+
+        // Secure login using --password-stdin
+        sh '''
+            echo $dockerHubPassword | ${dockerCMD} login -u insuranceproject1 --password-stdin
+        '''
+        
+        // Check if login was successful before pushing
+        sh '''
+            ${dockerCMD} push insuranceproject1/insure-me:${tagName}
+        '''
+    }
+}
         
     stage('Configure and Deploy to the test-server'){
         ansiblePlaybook become: true, credentialsId: 'ansible-key', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible-playbook.yml'
