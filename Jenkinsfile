@@ -43,14 +43,10 @@ node{
         sh "${dockerCMD} build -t insuranceproject1/insure-me:${tagName} ."
     }
     
-    stage('Pushing it to DockerHub') {
-    echo 'Pushing the docker image to DockerHub'
-    withCredentials([string(credentialsId: 'dockerHubPassword', variable: 'dockerHubPassword')]) {
-        // Use --password-stdin for secure login
-        sh """
-            echo \$dockerHubPassword | ${dockerCMD} login -u insuranceproject1 --password-stdin
-        """
-        // Push the image to DockerHub
+    stage('Pushing it ot the DockerHub'){
+        echo 'Pushing the docker image to DockerHub'
+        withCredentials([string(credentialsId: 'dock-password', variable: 'dockerHubPassword')]) {
+        sh "${dockerCMD} login -u shubhamkushwah123 -p ${dockerHubPassword}"
         sh "${dockerCMD} push insuranceproject1/insure-me:${tagName}"
         }
         
