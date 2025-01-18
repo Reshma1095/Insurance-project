@@ -47,7 +47,7 @@ node{
         echo 'Pushing the docker image to DockerHub'
         withCredentials([string(credentialsId: 'dockerhubpass', variable: 'dockerhubpass')]) {
         sh "${dockerCMD} login -u reshmadocker1095 -p ${dockerhubpass}"
-        sh "${dockerCMD} push reshmadocker1095/insure-me:${tagName}"
+       // sh "${dockerCMD} push reshmadocker1095/insure-me:${tagName}"
 }
         
     stage('Configure and Deploy to the test-server'){
